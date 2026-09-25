@@ -7,7 +7,12 @@ authors = [
     { name = "leohsin", email = "leohsin2002@gmail.com" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "httpx>=0.28.1",
+    "numpy>=2.5.3",
+    "pandas>=3.0.6",
+    "pyarrow>=25.0.1",
+]
 
 [project.scripts]
 gridcast-uk = "gridcast_uk:main"
