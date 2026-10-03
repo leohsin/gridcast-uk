@@ -147,3 +147,137 @@ def save_raw_demand_data(
         output_path,
         index=False,
     )
+
+def validate_raw_demand_data(df: pd.DataFrame) -> None:
+    required_columns = {
+        "SETTLEMENT_DATE",
+        "SETTLEMENT_PERIOD",
+        "ND",
+        "FORECAST_ACTUAL_INDICATOR",
+    }
+
+    missing_columns = required_columns - set(df.columns)
+
+    if missing_columns:
+        raise ValueError(
+            f"Missing required columns: {missing_columns}"
+        )
+
+    if df.empty:
+        raise ValueError("Dataset is empty.")
+
+    if df["ND"].isna().any():
+        raise ValueError("ND contains missing values.")
+
+    if (df["ND"] < 0).any():
+        raise ValueError("ND contains negative values.")
+
+    if df["SETTLEMENT_DATE"].isna().any():
+        raise ValueError(
+            "SETTLEMENT_DATE contains missing values."
+        )
+
+    if df["SETTLEMENT_PERIOD"].isna().any():
+        raise ValueError(
+            "SETTLEMENT_PERIOD contains missing values."
+        )
+
+    if not df["SETTLEMENT_PERIOD"].between(1, 50).all():
+        raise ValueError(
+            "SETTLEMENT_PERIOD contains values outside 1-50."
+        )
+
+    duplicate_mask = df.duplicated(
+        subset=[
+            "SETTLEMENT_DATE",
+            "SETTLEMENT_PERIOD",
+        ]
+    )
+
+    if duplicate_mask.any():
+        duplicate_count = duplicate_mask.sum()
+
+        raise ValueError(
+            f"Found {duplicate_count} duplicate settlement periods."
+        )
+
+def print_demand_data_summary(
+    df: pd.DataFrame,
+) -> None:
+    print("\n--- Demand data summary ---")
+
+    print(f"Rows: {len(df)}")
+
+    print(
+        "Date range:"
+        f" {df['SETTLEMENT_DATE'].min()}"
+        f" to {df['SETTLEMENT_DATE'].max()}"
+    )
+
+    print(
+        f"Minimum ND: {df['ND'].min():,} MW"
+    )
+
+    print(
+        f"Maximum ND: {df['ND'].max():,} MW"
+    )
+
+    print("\nActual/forecast indicator:")
+
+    print(
+        df["FORECAST_ACTUAL_INDICATOR"]
+        .value_counts(dropna=False)
+    )
+
+def process_demand_data(
+    df: pd.DataFrame,
+) -> pd.DataFrame:
+    df = df.copy()
+
+    df["SETTLEMENT_DATE"] = pd.to_datetime(
+        df["SETTLEMENT_DATE"]
+    )
+
+    df = add_settlement_timestamp(df)
+
+    df = df.drop(
+        columns=["_id"],
+        errors="ignore",
+    )
+
+    df.columns = [
+        column.lower()
+        for column in df.columns
+    ]
+
+    df = df.rename(
+      columns={
+        "nd": "national_demand_mw",
+        "tsd": "transmission_system_demand_mw",
+        "england_wales_demand": "england_wales_demand_mw",
+        "embedded_wind_generation": "embedded_wind_generation_mw",
+        "embedded_wind_capacity": "embedded_wind_capacity_mw",
+        "embedded_solar_generation": "embedded_solar_generation_mw",
+        "embedded_solar_capacity": "embedded_solar_capacity_mw",
+      }
+    )
+
+    df = df.sort_values(
+        "settlement_start"
+    ).reset_index(drop=True)
+
+    return df
+
+def save_dataframe(
+    df: pd.DataFrame,
+    output_path: Path,
+) -> None:
+    output_path.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    df.to_parquet(
+        output_path,
+        index=False,
+    )
