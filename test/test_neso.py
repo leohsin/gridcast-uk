@@ -5,6 +5,7 @@ from gridcast_uk.data.neso import (
     add_settlement_timestamp,
     process_demand_data,
     validate_raw_demand_data,
+    parse_settlement_dates,
 )
 
 
@@ -135,3 +136,36 @@ def test_validation_rejects_duplicates():
         match="duplicate",
     ):
         validate_raw_demand_data(df)
+
+def test_parse_historical_settlement_date_formats():
+    dates = pd.Series(
+        [
+            "01-JAN-2021",
+            "01-JAN-2022",
+            "01-Jan-23",
+            "2024-01-01",
+            "2025-01-01",
+            "2026-01-01",
+        ]
+    )
+
+    result = parse_settlement_dates(dates)
+
+    expected = pd.Series(
+        pd.to_datetime(
+            [
+                "2021-01-01",
+                "2022-01-01",
+                "2023-01-01",
+                "2024-01-01",
+                "2025-01-01",
+                "2026-01-01",
+            ]
+        )
+    )
+
+    pd.testing.assert_series_equal(
+    result,
+    expected,
+    check_dtype=False,
+    )
