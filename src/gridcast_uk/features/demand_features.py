@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+from holidays import country_holidays
 
 def add_calendar_features(
     df: pd.DataFrame,
@@ -84,12 +85,71 @@ def add_demand_lag(
 
     return result
 
+def add_holiday_features(
+    df: pd.DataFrame,
+) -> pd.DataFrame:
+    df = df.copy()
+
+    years = sorted(
+        df["settlement_start"]
+        .dt.year
+        .unique()
+        .tolist()
+    )
+
+    england_holidays = country_holidays(
+        "GB",
+        subdiv="ENG",
+        years=years,
+    )
+
+    wales_holidays = country_holidays(
+        "GB",
+        subdiv="WLS",
+        years=years,
+    )
+
+    scotland_holidays = country_holidays(
+        "GB",
+        subdiv="SCT",
+        years=years,
+    )
+
+    dates = df["settlement_start"].dt.date
+
+    df["is_england_wales_holiday"] = [
+        int(
+            date in england_holidays
+            or date in wales_holidays
+        )
+        for date in dates
+    ]
+
+    df["is_scotland_holiday"] = [
+        int(date in scotland_holidays)
+        for date in dates
+    ]
+
+    df["is_gb_holiday"] = (
+        (
+            df["is_england_wales_holiday"] == 1
+        )
+        | (
+            df["is_scotland_holiday"] == 1
+        )
+    ).astype(int)
+
+    return df
+
+
 def build_demand_features(
     df: pd.DataFrame,
 ) -> pd.DataFrame:
     df = df.copy()
 
     df = add_calendar_features(df)
+
+    df = add_holiday_features(df)
 
     df = add_demand_lag(
         df=df,

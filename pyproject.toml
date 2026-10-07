@@ -8,6 +8,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "holidays>=0.106",
     "httpx>=0.28.1",
     "numpy>=2.5.3",
     "pandas>=3.0.6",

@@ -23,6 +23,8 @@ FEATURES = [
     "day_of_week",
     "month",
     "is_weekend",
+    "is_england_wales_holiday",
+    "is_scotland_holiday",
     "demand_lag_1d_mw",
     "demand_lag_2d_mw",
     "demand_lag_7d_mw",

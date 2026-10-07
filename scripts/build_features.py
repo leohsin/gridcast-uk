@@ -69,3 +69,27 @@ save_dataframe(
 
 print()
 print(f"Saved to: {OUTPUT_PATH}")
+
+dates_to_check = [
+    "2025-01-01",
+    "2025-01-02",
+    "2025-08-25",
+    "2025-12-25",
+]
+
+for date in dates_to_check:
+    sample = feature_df[
+        feature_df["settlement_start"].dt.date
+        == pd.Timestamp(date).date()
+    ].iloc[0]
+
+    print(
+        date,
+        "England/Wales:",
+        sample["is_england_wales_holiday"],
+        "Scotland:",
+        sample["is_scotland_holiday"],
+        "GB:",
+        sample["is_gb_holiday"],
+    )
+
