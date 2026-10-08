@@ -358,16 +358,34 @@ gridcast-uk/
 │   └── tables/
 │
 ├── scripts/
-│   ├── download_historical_neso.py
-│   ├── build_historical_dataset.py
-│   ├── download_weather_forecasts.py
-│   ├── build_weather_features.py
-│   ├── build_regional_weather_features.py
-│   ├── evaluate_baselines.py
-│   ├── run_weather_ablation.py
-│   ├── compare_regional_weather.py
-│   ├── evaluate_final_test_2026.py
-│   └── report_final_test_2026.py
+│   ├── data/
+│   │   ├── build_features.py
+│   │   ├── build_historical_dataset.py
+│   │   ├── build_regional_weather_features.py
+│   │   ├── build_regional_weather_test_2026.py
+│   │   ├── download_historical_neso.py
+│   │   ├── download_weather_2026.py
+│   │   └── download_weather_forecasts.py
+│   │
+│   ├── experiments/
+│   │   ├── analyze_model_errors.py
+│   │   ├── analyze_regional_weather_importance.py
+│   │   ├── analyze_weather_improvement.py
+│   │   ├── build_weather_features.py
+│   │   ├── compare_regional_weather.py
+│   │   ├── compare_weather_model.py
+│   │   ├── evaluate_baselines.py
+│   │   ├── run_weather_ablation.py
+│   │   ├── train_gradient_boosting.py
+│   │   ├── train_ridge.py
+│   │   ├── tune_gradient_boosting.py
+│   │   └── tune_ridge.py
+│   │
+│   ├── evaluation/
+│   │   └── evaluate_final_test_2026.py
+│   │
+│   └── reporting/
+│       └── report_final_test_2026.py
 │
 ├── src/
 │   └── gridcast_uk/
@@ -403,7 +421,7 @@ uv run pytest
 Example model-evaluation command:
 
 ```bash
-uv run python scripts/evaluate_final_test_2026.py
+uv run python scripts/evaluation/evaluate_final_test_2026.py
 ```
 
 ---
